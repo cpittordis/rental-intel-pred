@@ -10,6 +10,8 @@ import pandas as pd
 import streamlit as st
 # import sqlalchemy
 
+from pathlib import Path
+code_dir = Path(__file__).parent.resolve()
 
 # ---- Option A: load from a local parquet/csv snapshot -------------------
 
