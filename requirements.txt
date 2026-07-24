@@ -5,4 +5,4 @@ plotly
 joblib
 matplotlib
 lightgbm
-sklearn
+scikit-learn
