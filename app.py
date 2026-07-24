@@ -16,10 +16,13 @@ import numpy as np
 
 import pandas as pd
 
-from src.data_loader import load_rental_data, get_feature_options
-from src.model import load_model, build_input_frame, predict_rent , predict_with_interval
+from data_loader import load_rental_data, get_feature_options
+from model import load_model, build_input_frame, predict_rent , predict_with_interval
 # from src.explainer import get_base_value , build_shap_explainer, explain_single_prediction, plot_local_contribution
 # from src.text_generator import generate_explanation_text
+
+
+
 
 
 st.set_page_config(page_title="UK Rental Price Predictor", layout="wide")
