@@ -16,12 +16,185 @@ import numpy as np
 
 import pandas as pd
 
-from data_loader import load_rental_data, get_feature_options
-from model import load_model, build_input_frame, predict_rent , predict_with_interval
+# from data_loader import load_rental_data, get_feature_options
+# from model import load_model, build_input_frame, predict_rent , predict_with_interval
 # from src.explainer import get_base_value , build_shap_explainer, explain_single_prediction, plot_local_contribution
 # from src.text_generator import generate_explanation_text
 
 
+@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
+def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
+    """
+    Load the rental listings dataset used both for training-time features
+    and for the actual-price distribution plot shown to the user.
+
+    Cached with a 6h TTL so the app doesn't re-read the file on every
+    widget interaction, but still picks up periodic data refreshes.
+    """
+    df = pd.read_parquet(path)
+    df = _clean_rental_data(df)
+    return df
+
+
+CATEGORICAL_FEATURES = [
+    'postcode_district','INNER_OUTER_LONDON','REGION_LONDON','wardcode','PropertyType',
+    #'Bedrooms',
+    'furnishtype','btrflag','newbuild'
+]
+
+
+def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Shared cleaning/filtering applied regardless of data source."""
+    df = df.dropna(subset=["asking_price"])
+    df = df[df["asking_price"].between(200, 60000)]  # strip obvious outliers
+    df = df.drop_duplicates()
+
+    # Ensure 'Bedrooms' is an integer type
+    if "Bedrooms" in df.columns:
+        df["Bedrooms"] = pd.to_numeric(df["Bedrooms"], errors='coerce').fillna(0).astype(int)
+
+    # # Ensure 'btrflag' and 'newbuild' are boolean types
+    # for col in ['btrflag', 'newbuild']:
+    #     if col in df.columns:
+    #         # Convert to boolean, coercing errors to NaN, then fill NaN with False (or appropriate default)
+    #         df[col] = df[col].astype(bool) # Convert existing types to bool
+
+
+    # Ensure log-transformed columns are float types
+    # These columns are typically derived and should be numerical
+    for col in ['num_listings_district_log10', 'num_listings_ward_log10']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0.0).astype(float)
+
+
+    # LightGBM handles categoricals natively when given 'category' dtype —
+    # this dataset also serves as the category_reference used by
+    # build_input_frame() so live predictions use the exact same category
+    # codes the model was trained on.
+    for col in CATEGORICAL_FEATURES:
+        if col in df.columns:
+            df[col] = df[col].astype("category")
+
+    return df
+
+
+def get_feature_options(df: pd.DataFrame) -> dict:
+    """
+    Derive the selectable options for each feature directly from the data,
+    so the UI always reflects what's actually in the current dataset.
+    """
+    return {
+
+    "postcode_district": sorted(df["postcode_district"].dropna().unique().tolist()),
+    "wardcode": sorted(df["wardcode"].dropna().unique().tolist()),
+    "INNER_OUTER_LONDON": sorted(df["INNER_OUTER_LONDON"].dropna().unique().tolist()),
+    "REGION_LONDON": sorted(df["REGION_LONDON"].dropna().unique().tolist()),
+    "PropertyType": sorted(df["PropertyType"].dropna().unique().tolist()),
+    "Bedrooms": sorted(df["Bedrooms"].dropna().unique().astype(int).tolist()), # Convert to int here
+    "furnishtype": sorted(df["furnishtype"].dropna().unique().tolist()),
+    "btrflag":  df["btrflag"].unique().tolist(), # Will now sort properly as it's boolean
+    "newbuild": df["newbuild"].unique().tolist(), # Will now sort properly as it's boolean
+
+
+    }
+
+
+CATEGORICAL_FEATURES = [
+    "postcode_district",
+    "INNER_OUTER_LONDON",
+    "REGION_LONDON",
+    "wardcode",
+    "PropertyType",
+    #"Bedrooms",
+    "furnishtype",
+    "btrflag",
+    "newbuild",
+]
+
+from pathlib import Path
+code_dir = Path(__file__).parent.resolve()
+
+@st.cache_resource(show_spinner="Loading rental prediction model...")
+def load_model(path: str = "../../models/final_lightgbm_model_uk_optuna_v20260703.pkl"):
+    """
+    Cached as a resource since the fitted LGBMRegressor should be loaded
+    once per session/process, not re-deserialized on every prediction.
+    """
+    return joblib.load(path)
+
+
+@st.cache_resource(show_spinner=False)
+def load_quantile_models(
+    lower_path: str = "../../models/rental_model_q10.joblib",
+    upper_path: str = "../models/rental_model_q90.joblib",
+):
+    """
+    LightGBM doesn't expose a tree-spread interval the way RandomForest
+    does — a quantile interval needs separate LGBMRegressor instances
+    trained with objective='quantile' and alpha=0.1 / alpha=0.9
+    respectively. Load them once and cache alongside the point model.
+
+    Returns (lower_model, upper_model), or (None, None) if the files
+    aren't present yet (interval reporting degrades gracefully).
+    """
+    try:
+        lower_model = joblib.load(lower_path)
+        upper_model = joblib.load(upper_path)
+        return lower_model, upper_model
+    except FileNotFoundError:
+        return None, None
+
+
+def build_input_frame(
+    user_selection: dict,
+    feature_order: list[str],
+    category_reference: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """
+    Convert the widget selections from app.py into a single-row DataFrame
+    matching what the LightGBM model expects.
+
+    category_reference (typically your training/full dataset) is used to
+    set the categorical dtype's categories to match training time exactly
+    — LightGBM encodes categories by their category codes internally, so
+    a mismatch here silently corrupts predictions.
+    """
+    row = {feature: user_selection.get(feature) for feature in feature_order}
+    input_frame = pd.DataFrame([row])
+
+    for col in CATEGORICAL_FEATURES:
+        if col not in input_frame.columns:
+            continue
+        if category_reference is not None and col in category_reference.columns:
+            categories = category_reference[col].astype("category").cat.categories
+            input_frame[col] = pd.Categorical(input_frame[col], categories=categories)
+        else:
+            input_frame[col] = input_frame[col].astype("category")
+
+    return input_frame
+
+
+def predict_rent(model, input_frame: pd.DataFrame) -> float:
+    """Return a single predicted monthly rental value."""
+    prediction = 10**(model.predict(input_frame))
+    return float(prediction[0])
+
+
+def predict_with_interval(model, input_frame: pd.DataFrame):
+    """
+    Point estimate from the main model, plus a [lower, upper] band from
+    the two quantile LightGBM models if they've been loaded. Returns
+    (point, lower, upper) — lower/upper are None if quantile models
+    aren't available, so the UI can fall back to showing the point
+    estimate alone.
+    """
+    point = predict_rent(model, input_frame)
+
+    lower_model, upper_model = load_quantile_models()
+    if lower_model is not None and upper_model is not None:
+        lower = predict_rent(lower_model, input_frame)
+        upper = predict_rent(upper_model, input_frame)
+        return point, lower, upper
 
 
 
