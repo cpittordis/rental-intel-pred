@@ -123,26 +123,26 @@ def load_model(path: str = "models/final_lightgbm_model_uk_optuna_v20260703_comp
     return joblib.load(path)
 
 
-@st.cache_resource(show_spinner=False)
-def load_quantile_models(
-    lower_path: str = "models/rental_model_q10.joblib",
-    upper_path: str = "models/rental_model_q90.joblib",
-):
-    """
-    LightGBM doesn't expose a tree-spread interval the way RandomForest
-    does — a quantile interval needs separate LGBMRegressor instances
-    trained with objective='quantile' and alpha=0.1 / alpha=0.9
-    respectively. Load them once and cache alongside the point model.
+# @st.cache_resource(show_spinner=False)
+# def load_quantile_models(
+#     lower_path: str = "models/rental_model_q10.joblib",
+#     upper_path: str = "models/rental_model_q90.joblib",
+# ):
+#     """
+#     LightGBM doesn't expose a tree-spread interval the way RandomForest
+#     does — a quantile interval needs separate LGBMRegressor instances
+#     trained with objective='quantile' and alpha=0.1 / alpha=0.9
+#     respectively. Load them once and cache alongside the point model.
 
-    Returns (lower_model, upper_model), or (None, None) if the files
-    aren't present yet (interval reporting degrades gracefully).
-    """
-    try:
-        lower_model = joblib.load(lower_path)
-        upper_model = joblib.load(upper_path)
-        return lower_model, upper_model
-    except FileNotFoundError:
-        return None, None
+#     Returns (lower_model, upper_model), or (None, None) if the files
+#     aren't present yet (interval reporting degrades gracefully).
+#     """
+#     try:
+#         lower_model = joblib.load(lower_path)
+#         upper_model = joblib.load(upper_path)
+#         return lower_model, upper_model
+#     except FileNotFoundError:
+#         return None, None
 
 
 def build_input_frame(
@@ -190,11 +190,12 @@ def predict_with_interval(model, input_frame: pd.DataFrame):
     """
     point = predict_rent(model, input_frame)
 
-    lower_model, upper_model = load_quantile_models()
-    if lower_model is not None and upper_model is not None:
-        lower = predict_rent(lower_model, input_frame)
-        upper = predict_rent(upper_model, input_frame)
-        return point, lower, upper
+    # lower_model, upper_model = load_quantile_models()
+    # if lower_model is not None and upper_model is not None:
+    #     lower = predict_rent(lower_model, input_frame)
+    #     upper = predict_rent(upper_model, input_frame)
+    #     return point, lower, upper
+    return point#, None, None  # Return None for lower and upper if quantile models aren't available
 
 
 
@@ -341,14 +342,15 @@ if predict_clicked:
     # st.dataframe(df_filter)
 
     input_frame = build_input_frame(user_selection, FEATURE_ORDER, category_reference=df)
-    predicted_rent, lower, upper = predict_with_interval(model, input_frame)
+    # predicted_rent, lower, upper = predict_with_interval(model, input_frame)
+    predicted_rent = predict_rent(model, input_frame)
 
     col_pred, col_context = st.columns([1, 2])
 
     with col_pred:
         st.metric("Predicted monthly rent", f"£{predicted_rent:,.0f}")
-        if lower is not None and upper is not None:
-            st.caption(f"Likely range: £{lower:,.0f} – £{upper:,.0f}")
+        # if lower is not None and upper is not None:
+        #     st.caption(f"Likely range: £{lower:,.0f} – £{upper:,.0f}")
 
     # ---- Distribution of actual prices for similar properties ----
     with col_context:
