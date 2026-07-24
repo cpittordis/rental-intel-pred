@@ -115,7 +115,7 @@ from pathlib import Path
 code_dir = Path(__file__).parent.resolve()
 
 @st.cache_resource(show_spinner="Loading rental prediction model...")
-def load_model(path: str = "models/final_lightgbm_model_uk_optuna_v20260703.pkl"):
+def load_model(path: str = "models/final_lightgbm_model_uk_optuna_v20260703_compressed.joblib"):
     """
     Cached as a resource since the fitted LGBMRegressor should be loaded
     once per session/process, not re-deserialized on every prediction.
