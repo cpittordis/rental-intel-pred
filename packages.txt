@@ -1,2 +1,1 @@
-src.data_loader
-src.model
+src
