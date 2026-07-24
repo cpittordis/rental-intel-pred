@@ -8,7 +8,7 @@ decorator behaves the same either way.
 
 import pandas as pd
 import streamlit as st
-import sqlalchemy
+# import sqlalchemy
 
 
 # ---- Option A: load from a local parquet/csv snapshot -------------------

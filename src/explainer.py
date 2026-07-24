@@ -10,20 +10,20 @@ same contribution values computed for the table, so there's only one
 source of truth and no duplicate SHAP computation.
 """
 
-import shap
+# import shap
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 
-@st.cache_resource(show_spinner="Preparing explainability engine...")
-def build_shap_explainer(_model):
-    """
-    Cached as a resource — built once per session/process. _model is
-    prefixed with underscore so Streamlit doesn't try to hash it.
-    """
-    return shap.TreeExplainer(_model)
+# @st.cache_resource(show_spinner="Preparing explainability engine...")
+# def build_shap_explainer(_model):
+#     """
+#     Cached as a resource — built once per session/process. _model is
+#     prefixed with underscore so Streamlit doesn't try to hash it.
+#     """
+#     return shap.TreeExplainer(_model)
 
 
 def get_base_value(shap_explainer) -> float:
