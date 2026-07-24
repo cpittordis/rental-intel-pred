@@ -16,7 +16,7 @@ code_dir = Path(__file__).parent.resolve()
 # ---- Option A: load from a local parquet/csv snapshot -------------------
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
-def load_rental_data(path: str = "../data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
+def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
     and for the actual-price distribution plot shown to the user.
