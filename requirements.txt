@@ -4,4 +4,4 @@ numpy
 plotly
 joblib
 matplotlib
-lightgbm>=4.3.0
+lightgbm
