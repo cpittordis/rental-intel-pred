@@ -13,7 +13,7 @@ Single-page Streamlit app, backed by a LightGBM model:
 import streamlit as st
 import plotly.express as px
 import numpy as np
-
+import joblib
 import pandas as pd
 
 # from data_loader import load_rental_data, get_feature_options
