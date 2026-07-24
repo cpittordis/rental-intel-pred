@@ -4,5 +4,5 @@ numpy
 plotly
 joblib
 matplotlib
-lightgbm
-scikit-learn
+lightgbm>=4.3.0
+sklearn
