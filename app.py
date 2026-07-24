@@ -115,7 +115,7 @@ from pathlib import Path
 code_dir = Path(__file__).parent.resolve()
 
 @st.cache_resource(show_spinner="Loading rental prediction model...")
-def load_model(path: str = "../models/final_lightgbm_model_uk_optuna_v20260703.pkl"):
+def load_model(path: str = "models/final_lightgbm_model_uk_optuna_v20260703.pkl"):
     """
     Cached as a resource since the fitted LGBMRegressor should be loaded
     once per session/process, not re-deserialized on every prediction.
@@ -125,8 +125,8 @@ def load_model(path: str = "../models/final_lightgbm_model_uk_optuna_v20260703.p
 
 @st.cache_resource(show_spinner=False)
 def load_quantile_models(
-    lower_path: str = "../../models/rental_model_q10.joblib",
-    upper_path: str = "../models/rental_model_q90.joblib",
+    lower_path: str = "models/rental_model_q10.joblib",
+    upper_path: str = "models/rental_model_q90.joblib",
 ):
     """
     LightGBM doesn't expose a tree-spread interval the way RandomForest
