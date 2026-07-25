@@ -372,11 +372,12 @@ if predict_clicked:
             & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
         ]
 
-        similar['btrflag'] = similar['btrflag'].astype(str)
-        similar['newbuild'] = similar['newbuild'].astype(str)
+        similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
+        # similar['btrflag'] = similar['btrflag'].astype(str)
+        similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
 
-        similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
-        similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
+        # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
+        # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
 
 
 
