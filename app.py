@@ -15,8 +15,6 @@ import plotly.express as px
 import numpy as np
 import joblib
 import pandas as pd
-import os
-import psutil
 
 # from data_loader import load_rental_data, get_feature_options
 # from model import load_model, build_input_frame, predict_rent , predict_with_interval
