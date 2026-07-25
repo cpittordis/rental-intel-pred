@@ -40,7 +40,7 @@ import psutil
 #     delta_color="normal" if current_mem < 800 else "inverse"
 # )
 
-#@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
+@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
 def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
@@ -62,7 +62,7 @@ def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
     """Shared cleaning/filtering applied regardless of data source."""
 
     df = df.dropna(subset=["asking_price"])
-    df = df[df["asking_price"].between(200, 60000)]  # strip obvious outliers
+    df = df[df["asking_price"].between(200, 10000)]  # strip obvious outliers
     df = df.drop_duplicates()
 
     CATEGORICAL_FEATURES = [
@@ -288,13 +288,13 @@ filtered_inner_outer_london_options = sorted(filtered_inner_outer_london_df["INN
 filtered_london_regions_df = df[df["postcode_district"] == selected_postcode_district]
 filtered_london_regions_options = sorted(filtered_london_regions_df["REGION_LONDON"].dropna().unique().tolist())
 
-# Filter PorpertyType based on selected postcode_district and selected postcode
-filtered_property_type_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode)]
-filtered_property_type_options = sorted(filtered_property_type_df["PropertyType"].dropna().unique().tolist())
+# # Filter PorpertyType based on selected postcode_district and selected postcode
+# filtered_property_type_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode)]
+# filtered_property_type_options = sorted(filtered_property_type_df["PropertyType"].dropna().unique().tolist())
 
-# filter bedrooms based on selected postcode_district and selected postcode and selected property type
-filtered_bedrooms_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode) & (df["PropertyType"] == filtered_property_type_options[0])]
-filtered_bedrooms_options = sorted(filtered_bedrooms_df["Bedrooms"].dropna().unique().astype(int).tolist())
+# # filter bedrooms based on selected postcode_district and selected postcode and selected property type
+# filtered_bedrooms_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode) & (df["PropertyType"] == filtered_property_type_options[0])]
+# filtered_bedrooms_options = sorted(filtered_bedrooms_df["Bedrooms"].dropna().unique().astype(int).tolist())
 
 user_selection = {
     "postcode_district": selected_postcode_district,
@@ -303,8 +303,13 @@ user_selection = {
     "Postcode": selected_postcode,  # Store the selected postcode
     # Use the filtered wardcode options for the wardcode selectbox
     "wardcode": st.sidebar.selectbox("Ward code", filtered_wardcode_options),
-    "PropertyType": st.sidebar.selectbox("Property type", filtered_property_type_options),
-    "Bedrooms": st.sidebar.selectbox("Bedrooms", filtered_bedrooms_options),
+
+    # "PropertyType": st.sidebar.selectbox("Property type", filtered_property_type_options),
+    # "Bedrooms": st.sidebar.selectbox("Bedrooms", filtered_bedrooms_options),
+
+    "PropertyType": st.sidebar.selectbox("Property type", options["PropertyType"]),
+    "Bedrooms": st.sidebar.selectbox("Bedrooms", options["Bedrooms"]),
+
     "furnishtype": st.sidebar.selectbox("Furnished Type", options["furnishtype"]),
     "btrflag": st.sidebar.selectbox("BTR (Build to Rent) or Not", options["btrflag"]),
     "newbuild": st.sidebar.selectbox("New Build", options["newbuild"]),
