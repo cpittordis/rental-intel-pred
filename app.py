@@ -372,20 +372,27 @@ st.title("UK Rental Price Predictor")
 st.caption("Select property features on the left, then predict to see the estimated monthly rent.")
 
 def replace_na(x, value_str):
+
     if pd.isnull(x) == True:
         return value_str
+
     elif x == 'nan':
         return value_str
+
     elif str(x).lower().strip() == 'nan':
         return value_str
+
     elif x == np.nan:
         return value_str
+
     elif x == None:
         return value_str
+
     elif x == '':
+
         return value_str
     else:
-        x
+        return x
 
 
 # ---------------------------------------------------------- prediction ----
