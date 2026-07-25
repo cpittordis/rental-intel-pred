@@ -49,7 +49,7 @@ def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.pa
     widget interaction, but still picks up periodic data refreshes.
     """
     df = pd.read_parquet(path)
-    df = df.sample(300000)
+    df = df.sample(100000)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
     print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
@@ -386,7 +386,11 @@ if predict_clicked:
     
     # st.dataframe(df_filter)
 
-    df['furnishtype'] = df['furnishtype'].astype(str).replace('nan','Not Specified')
+    # df['furnishtype'] = df['furnishtype'].astype(str).replace('nan','Not Specified')
+    # df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
+    # df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
+
+    df['furnishtype'] = df['furnishtype'].apply(lambda x: x if x.astype(str) != 'nan' else 'Not Specified')
     df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
