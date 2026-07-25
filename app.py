@@ -403,12 +403,11 @@ if predict_clicked:
     # df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     # df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
-    df['furnishtype'] = df['furnishtype'].apply(replace_na('Not Specified'))
-    
-    df['btrflag'] = df['btrflag'].apply(replace_na('NO'))
-    df['newbuild'] = df['newbuild'].apply(replace_na('NO'))
+    df['furnishtype'] = df['furnishtype'].apply(lambda x: replace_na(x, 'Not Specified'))
+    df['btrflag'] = df['btrflag'].apply(lambda x: replace_na(x, 'NO'))
+    df['newbuild'] = df['newbuild'].apply(lambda x: replace_na(x, 'NO'))
 
-    
+
     FEATURE_ORDER = [
 
     ## Categorical features : to select
