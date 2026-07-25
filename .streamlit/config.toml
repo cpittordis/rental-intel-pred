@@ -6,11 +6,6 @@ textColor = "#FFFFFF"
 font = "sans serif"
 base = "dark"
 
-[global]
-storeCachedForwardMessagesInMemory = false
-
 [client]
 toolbarMode = "minimal"
 
-[layout]
-maxWidth = 2400
