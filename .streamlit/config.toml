@@ -9,5 +9,3 @@ base = "dark"
 [client]
 toolbarMode = "minimal"
 
-[layout]
-maxWidth = 2400
