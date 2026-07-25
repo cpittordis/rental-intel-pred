@@ -115,7 +115,7 @@ def condense_dtypes(df):
             df[col] = pd.to_numeric(df[col], downcast="integer")
 
         # Condense Text objects to Categories if high repetition
-        elif col_type == "object" #or col_type == "string":
+        elif col_type == "object": #or col_type == "string":
             if df[col].nunique() / len(df[col]) < 0.5:
                 df[col] = df[col].astype("category")
     return df
