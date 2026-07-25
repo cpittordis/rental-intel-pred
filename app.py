@@ -39,7 +39,7 @@ import gc
 #     delta_color="normal" if current_mem < 800 else "inverse"
 # )
 
-@st.cache_data(ttl="6h", max_entries=10, show_spinner="Loading latest rental listings...")
+@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
 def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
@@ -48,7 +48,7 @@ def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.pa
     Cached with a 6h TTL so the app doesn't re-read the file on every
     widget interaction, but still picks up periodic data refreshes.
     """
-    df = pd.read_parquet(path)
+    df = pd.read_parquet(path).sample(10000)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
     print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
