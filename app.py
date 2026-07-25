@@ -384,6 +384,8 @@ def replace_na(x, value_str):
         return value_str
     elif x == '':
         return value_str
+    else:
+        x
 
 
 # ---------------------------------------------------------- prediction ----
