@@ -15,6 +15,7 @@ import plotly.express as px
 import numpy as np
 import joblib
 import pandas as pd
+import gc
 
 # from data_loader import load_rental_data, get_feature_options
 # from model import load_model, build_input_frame, predict_rent , predict_with_interval
@@ -38,7 +39,7 @@ import pandas as pd
 #     delta_color="normal" if current_mem < 800 else "inverse"
 # )
 
-@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
+@st.cache_data(ttl="6h", max_entries=10, show_spinner="Loading latest rental listings...")
 def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
@@ -442,6 +443,11 @@ if predict_clicked:
         #                                                                                     or x == ''
         #                                                                                     or x == None
         #                                                                                     or x == np.nan) else x)
+
+        del df
+
+        # Force Python to clear the unreferenced memory immediately
+        gc.collect()
 
         similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
         similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
