@@ -96,29 +96,29 @@ def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             df[col] = df[col].astype("category")
 
-    # final condensing 
-    df = condense_dtypes(df)
+    # # final condensing 
+    # df = condense_dtypes(df)
 
     return df
 
-    # 2. Downcast data types to use less memory
-def condense_dtypes(df):
-    for col in df.columns:
-        col_type = df[col].dtype
+#     # 2. Downcast data types to use less memory
+# def condense_dtypes(df):
+#     for col in df.columns:
+#         col_type = df[col].dtype
 
-        # Condense Floats (e.g., float64 -> float32)
-        if np.issubdtype(col_type, np.floating):
-            df[col] = pd.to_numeric(df[col], downcast="float")
+#         # Condense Floats (e.g., float64 -> float32)
+#         if np.issubdtype(col_type, np.floating):
+#             df[col] = pd.to_numeric(df[col], downcast="float")
 
-        # Condense Integers (e.g., int64 -> int8 or int16)
-        elif np.issubdtype(col_type, np.integer):
-            df[col] = pd.to_numeric(df[col], downcast="integer")
+#         # Condense Integers (e.g., int64 -> int8 or int16)
+#         elif np.issubdtype(col_type, np.integer):
+#             df[col] = pd.to_numeric(df[col], downcast="integer")
 
-        # # Condense Text objects to Categories if high repetition
-        # elif col_type == "object": #or col_type == "string":
-        #     if df[col].nunique() / len(df[col]) < 0.5:
-        #         df[col] = df[col].astype("category")
-    return df
+#         # # Condense Text objects to Categories if high repetition
+#         # elif col_type == "object": #or col_type == "string":
+#         #     if df[col].nunique() / len(df[col]) < 0.5:
+#         #         df[col] = df[col].astype("category")
+#     return df
 
     
 
