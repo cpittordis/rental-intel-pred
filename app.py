@@ -61,7 +61,7 @@ def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
     """Shared cleaning/filtering applied regardless of data source."""
 
     df = df.dropna(subset=["asking_price"])
-    df = df[df["asking_price"].between(200, 7000)]  # strip obvious outliers
+    df = df[df["asking_price"].between(200, 10000)]  # strip obvious outliers
     df = df.drop_duplicates()
 
     CATEGORICAL_FEATURES = [
@@ -114,10 +114,10 @@ def condense_dtypes(df):
         elif np.issubdtype(col_type, np.integer):
             df[col] = pd.to_numeric(df[col], downcast="integer")
 
-        # Condense Text objects to Categories if high repetition
-        elif col_type == "object": #or col_type == "string":
-            if df[col].nunique() / len(df[col]) < 0.5:
-                df[col] = df[col].astype("category")
+        # # Condense Text objects to Categories if high repetition
+        # elif col_type == "object": #or col_type == "string":
+        #     if df[col].nunique() / len(df[col]) < 0.5:
+        #         df[col] = df[col].astype("category")
     return df
 
     
