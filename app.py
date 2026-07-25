@@ -372,6 +372,12 @@ if predict_clicked:
             & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
         ]
 
+        similar['btrflag'] = similar['btrflag'].astype(str)
+        similar['newbuild'] = similar['newbuild'].astype(str)
+
+        similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
+        similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
+
 
 
         # # # Fall back to a looser match if too few comparable listings exist
