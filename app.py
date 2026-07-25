@@ -412,9 +412,9 @@ if predict_clicked:
     # df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     # df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
-    df['furnishtype'] = df['furnishtype'].apply(lambda x: replace_na(x, 'Not Specified'))
-    df['btrflag'] = df['btrflag'].apply(lambda x: replace_na(x, 'NO'))
-    df['newbuild'] = df['newbuild'].apply(lambda x: replace_na(x, 'NO'))
+    # df['furnishtype'] = df['furnishtype'].apply(lambda x: replace_na(x, 'Not Specified'))
+    # df['btrflag'] = df['btrflag'].apply(lambda x: replace_na(x, 'NO'))
+    # df['newbuild'] = df['newbuild'].apply(lambda x: replace_na(x, 'NO'))
 
 
     FEATURE_ORDER = [
@@ -490,6 +490,8 @@ if predict_clicked:
                     # & (df["btrflag"].astype(str) == rf'{user_selection["btrflag"]}')
                     # & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
                     ]
+
+
         
         # similar['btrflag'] = similar['btrflag'].astype(str)
         # similar['newbuild'] = similar['newbuild'].astype(str)
@@ -507,6 +509,10 @@ if predict_clicked:
 
         # Force Python to clear the unreferenced memory immediately
         gc.collect()
+
+        similar['furnishtype'] =    similar['furnishtype'].apply(lambda x: replace_na(x, 'Not Specified'))
+        similar['btrflag'] =        similar['btrflag'].apply(lambda x: replace_na(x, 'NO'))
+        similar['newbuild'] =       similar['newbuild'].apply(lambda x: replace_na(x, 'NO'))
 
         
         # similar["furnishtype"] = similar["furnishtype"].apply(lambda x: x if pd.isnull(x) == False else 'Not Specified')
