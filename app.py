@@ -41,7 +41,7 @@ import psutil
 # )
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
-def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
+def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
     and for the actual-price distribution plot shown to the user.
@@ -271,8 +271,13 @@ st.sidebar.header("Property features")
 # Get postcode_district selection first
 selected_postcode_district = st.sidebar.selectbox("Postcode district", options["postcode_district"])
 
-# Filter wardcodes based on selected postcode_district
-filtered_wardcodes_df = df[df["postcode_district"] == selected_postcode_district]
+# filter postcodes based on selected postcode_district
+filtered_postcode_df = df[df["postcode_district"] == selected_postcode_district]
+filtered_postcode_options = sorted(filtered_postcode_df["Postcode"].dropna().unique().tolist())
+selected_postcode = st.sidebar.selectbox("Postcode", sorted(filtered_postcode_df["Postcode"].dropna().unique().tolist()))
+
+# Filter wardcodes based on selected postcode_district and selected postcode
+filtered_wardcodes_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode)]
 filtered_wardcode_options = sorted(filtered_wardcodes_df["wardcode"].dropna().unique().tolist())
 
 # Filter INNER/OUTER London Regions based on selected postcode_district
@@ -283,14 +288,23 @@ filtered_inner_outer_london_options = sorted(filtered_inner_outer_london_df["INN
 filtered_london_regions_df = df[df["postcode_district"] == selected_postcode_district]
 filtered_london_regions_options = sorted(filtered_london_regions_df["REGION_LONDON"].dropna().unique().tolist())
 
+# Filter PorpertyType based on selected postcode_district and selected postcode
+filtered_property_type_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode)]
+filtered_property_type_options = sorted(filtered_property_type_df["PropertyType"].dropna().unique().tolist())
+
+# filter bedrooms based on selected postcode_district and selected postcode and selected property type
+filtered_bedrooms_df = df[(df["postcode_district"] == selected_postcode_district) & (df["Postcode"] == selected_postcode) & (df["PropertyType"] == filtered_property_type_options[0])]
+filtered_bedrooms_options = sorted(filtered_bedrooms_df["Bedrooms"].dropna().unique().astype(int).tolist())
+
 user_selection = {
     "postcode_district": selected_postcode_district,
     "INNER_OUTER_LONDON": st.sidebar.selectbox("Inner/Outer London", filtered_inner_outer_london_options),
     "REGION_LONDON": st.sidebar.selectbox("London region", filtered_london_regions_options),
+    "Postcode": selected_postcode,  # Store the selected postcode
     # Use the filtered wardcode options for the wardcode selectbox
     "wardcode": st.sidebar.selectbox("Ward code", filtered_wardcode_options),
-    "PropertyType": st.sidebar.selectbox("Property type", options["PropertyType"]),
-    "Bedrooms": st.sidebar.selectbox("Bedrooms", options["Bedrooms"]),
+    "PropertyType": st.sidebar.selectbox("Property type", filtered_property_type_options),
+    "Bedrooms": st.sidebar.selectbox("Bedrooms", filtered_bedrooms_options),
     "furnishtype": st.sidebar.selectbox("Furnished Type", options["furnishtype"]),
     "btrflag": st.sidebar.selectbox("BTR (Build to Rent) or Not", options["btrflag"]),
     "newbuild": st.sidebar.selectbox("New Build", options["newbuild"]),
@@ -400,7 +414,7 @@ if predict_clicked:
 
 
         # # # Fall back to a looser match if too few comparable listings exist
-        if len(similar) < 10:
+        if len(similar) < 5:
             
             similar = df[
                     (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
@@ -420,8 +434,13 @@ if predict_clicked:
         # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
         # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
 
+        similar['furnishtype'] = similar['furnishtype'].apply(lambda x: 'Not Specified' if (pd.isnull(x) == True 
+                                                                                            or x == 'nan' 
+                                                                                            or x == ''
+                                                                                            or x == None
+                                                                                            or x == np.nan) else x)
+
         similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
-        # similar['btrflag'] = similar['btrflag'].astype(str)
         similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
 
         st.dataframe(similar , hide_index=True)
