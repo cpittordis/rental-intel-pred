@@ -15,12 +15,30 @@ import plotly.express as px
 import numpy as np
 import joblib
 import pandas as pd
+import os
+import psutil
 
 # from data_loader import load_rental_data, get_feature_options
 # from model import load_model, build_input_frame, predict_rent , predict_with_interval
 # from src.explainer import get_base_value , build_shap_explainer, explain_single_prediction, plot_local_contribution
 # from src.text_generator import generate_explanation_text
 
+
+def get_memory_usage():
+    # Obtains resident set size (RSS) memory in bytes
+    process = psutil.Process(os.getpid())
+    mem_bytes = process.memory_info().rss
+    # Convert bytes to Megabytes for readability
+    return mem_bytes / (1024 * 1024)
+
+# Display a live metrics card in the Streamlit Sidebar
+current_mem = get_memory_usage()
+st.sidebar.metric(
+    label="RAM Usage", 
+    value=f"{current_mem:.2f} MB", 
+    delta=f"{1024 - current_mem:.2f} MB remaining",
+    delta_color="normal" if current_mem < 800 else "inverse"
+)
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
 def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
