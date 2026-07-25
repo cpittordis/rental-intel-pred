@@ -371,6 +371,17 @@ predict_clicked = st.sidebar.button("Predict rent", type="primary")
 st.title("UK Rental Price Predictor")
 st.caption("Select property features on the left, then predict to see the estimated monthly rent.")
 
+def replace_na(x, value_str : str):
+    if pd.isnull(x) == True:
+        return value_str
+    elif x == 'nan':
+        return value_str
+    elif x == np.nan:
+        return value_str
+    elif x == None:
+        return value_str
+    elif x == '':
+        return value_str
 
 
 # ---------------------------------------------------------- prediction ----
@@ -390,9 +401,7 @@ if predict_clicked:
     # df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     # df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
-    df['furnishtype'] = df['furnishtype'].apply(lambda x: x if x != 'nan' else 'Not Specified'
-                                                x if pd.isnull(x) == False else 'Not Specified'
-                                                )
+    df['furnishtype'] = df['furnishtype'].apply(replace_na('Not Specified'))
     
     df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
