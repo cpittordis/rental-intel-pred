@@ -49,7 +49,7 @@ def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.pa
     widget interaction, but still picks up periodic data refreshes.
     """
     df = pd.read_parquet(path)
-    df = df.sample(50000)
+    df = df.sample(200000)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
     print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
