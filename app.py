@@ -40,7 +40,7 @@ st.sidebar.metric(
     delta_color="normal" if current_mem < 800 else "inverse"
 )
 
-@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
+@st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...", max_entries=10)
 def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
