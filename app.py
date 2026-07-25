@@ -329,162 +329,162 @@ st.title("UK Rental Price Predictor")
 st.caption("Select property features on the left, then predict to see the estimated monthly rent.")
 
 
-# # ---------------------------------------------------------- prediction ----
-# if predict_clicked:
-#     # df doubles as the category_reference so the live input row uses the
-#     # exact same category codes LightGBM was trained on.
+# ---------------------------------------------------------- prediction ----
+if predict_clicked:
+    # df doubles as the category_reference so the live input row uses the
+    # exact same category codes LightGBM was trained on.
 
-#     # df_filter = df[(df["Bedrooms"].astype(int) == 1)
-#     #             & (df["postcode_district"].astype(str) == r'B18')
-#     #             & (df['furnishtype'].astype(str) == r'furnished')
-#     #             &(df['btrflag'].astype(str) == 'nan')
-#     #             ]
+    # df_filter = df[(df["Bedrooms"].astype(int) == 1)
+    #             & (df["postcode_district"].astype(str) == r'B18')
+    #             & (df['furnishtype'].astype(str) == r'furnished')
+    #             &(df['btrflag'].astype(str) == 'nan')
+    #             ]
     
-#     # st.dataframe(df_filter)
+    # st.dataframe(df_filter)
 
     
-#     FEATURE_ORDER = [
+    FEATURE_ORDER = [
 
-#     ## Categorical features : to select
-#     'postcode_district',
-#     'INNER_OUTER_LONDON',
-#     'REGION_LONDON',
-#     'wardcode',
-#     'PropertyType',
-#     'Bedrooms',
-#     'furnishtype',
-#     'btrflag',
-#     'newbuild',
+    ## Categorical features : to select
+    'postcode_district',
+    'INNER_OUTER_LONDON',
+    'REGION_LONDON',
+    'wardcode',
+    'PropertyType',
+    'Bedrooms',
+    'furnishtype',
+    'btrflag',
+    'newbuild',
 
-#     # Calculated features : to be derived from the selected categorical features
-#     'num_occupants_district',
-#     'num_occupants_ward',
-#     'listings_per_occupant_district_percentage',
-#     'listings_per_occupant_ward_percentage',
-#     'num_listings_district_log10',
-#     'num_listings_ward_log10'
-#     ]
+    # Calculated features : to be derived from the selected categorical features
+    'num_occupants_district',
+    'num_occupants_ward',
+    'listings_per_occupant_district_percentage',
+    'listings_per_occupant_ward_percentage',
+    'num_listings_district_log10',
+    'num_listings_ward_log10'
+    ]
 
-#     input_frame = build_input_frame(user_selection, FEATURE_ORDER, category_reference=df)
-#     # predicted_rent, lower, upper = predict_with_interval(model, input_frame)
-#     predicted_rent = predict_rent(model, input_frame)
+    input_frame = build_input_frame(user_selection, FEATURE_ORDER, category_reference=df)
+    # predicted_rent, lower, upper = predict_with_interval(model, input_frame)
+    predicted_rent = predict_rent(model, input_frame)
 
-#     col_pred, col_context = st.columns([1, 2])
+    col_pred, col_context = st.columns([1, 2])
 
-#     with col_pred:
-#         st.metric("Predicted monthly rent", f"£{predicted_rent:,.0f}")
-#         # if lower is not None and upper is not None:
-#         #     st.caption(f"Likely range: £{lower:,.0f} – £{upper:,.0f}")
+    with col_pred:
+        st.metric("Predicted monthly rent", f"£{predicted_rent:,.0f}")
+        # if lower is not None and upper is not None:
+        #     st.caption(f"Likely range: £{lower:,.0f} – £{upper:,.0f}")
 
-#     # ---- Distribution of actual prices for similar properties ----
-#     with col_context:
-#         similar = df[
-#             (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
-#             & (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
-#             & (df["postcode_district"].astype(str) == rf'{user_selection["postcode_district"]}')
-#             & (df["wardcode"].astype(str) == rf'{user_selection["wardcode"]}')
-#             & (df["INNER_OUTER_LONDON"].astype(str) == rf'{user_selection["INNER_OUTER_LONDON"]}')
-#             & (df["REGION_LONDON"].astype(str) == rf'{user_selection["REGION_LONDON"]}')
-#             & (df["furnishtype"].astype(str) == rf'{user_selection["furnishtype"]}')
-#             & (df["btrflag"].astype(str) == rf'{user_selection["btrflag"]}')
-#             & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
-#         ]
+    # ---- Distribution of actual prices for similar properties ----
+    with col_context:
+        similar = df[
+            (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
+            & (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
+            & (df["postcode_district"].astype(str) == rf'{user_selection["postcode_district"]}')
+            & (df["wardcode"].astype(str) == rf'{user_selection["wardcode"]}')
+            & (df["INNER_OUTER_LONDON"].astype(str) == rf'{user_selection["INNER_OUTER_LONDON"]}')
+            & (df["REGION_LONDON"].astype(str) == rf'{user_selection["REGION_LONDON"]}')
+            & (df["furnishtype"].astype(str) == rf'{user_selection["furnishtype"]}')
+            & (df["btrflag"].astype(str) == rf'{user_selection["btrflag"]}')
+            & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
+        ]
 
-#         similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
-#         # similar['btrflag'] = similar['btrflag'].astype(str)
-#         similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
+        similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
+        # similar['btrflag'] = similar['btrflag'].astype(str)
+        similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
 
-#         # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
-#         # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
+        # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
+        # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
 
 
 
-#         # # # Fall back to a looser match if too few comparable listings exist
-#         if len(similar) < 10:
+        # # # Fall back to a looser match if too few comparable listings exist
+        if len(similar) < 10:
             
-#             similar = df[
-#                     (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
-#                     & (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
-#                     & (df["postcode_district"].astype(str) == rf'{user_selection["postcode_district"]}')
-#                     # & (df["wardcode"].astype(str) == rf'{user_selection["wardcode"]}')
-#                     # & (df["INNER_OUTER_LONDON"].astype(str) == rf'{user_selection["INNER_OUTER_LONDON"]}')
-#                     # & (df["REGION_LONDON"].astype(str) == rf'{user_selection["REGION_LONDON"]}')
-#                     # & (df["furnishtype"].astype(str) == rf'{user_selection["furnishtype"]}')
-#                     # & (df["btrflag"].astype(str) == rf'{user_selection["btrflag"]}')
-#                     # & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
-#                     ]
+            similar = df[
+                    (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
+                    & (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
+                    & (df["postcode_district"].astype(str) == rf'{user_selection["postcode_district"]}')
+                    # & (df["wardcode"].astype(str) == rf'{user_selection["wardcode"]}')
+                    # & (df["INNER_OUTER_LONDON"].astype(str) == rf'{user_selection["INNER_OUTER_LONDON"]}')
+                    # & (df["REGION_LONDON"].astype(str) == rf'{user_selection["REGION_LONDON"]}')
+                    # & (df["furnishtype"].astype(str) == rf'{user_selection["furnishtype"]}')
+                    # & (df["btrflag"].astype(str) == rf'{user_selection["btrflag"]}')
+                    # & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
+                    ]
         
-#         similar['btrflag'] = similar['btrflag'].astype(str)
-#         similar['newbuild'] = similar['newbuild'].astype(str)
+        similar['btrflag'] = similar['btrflag'].astype(str)
+        similar['newbuild'] = similar['newbuild'].astype(str)
 
-#         similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
-#         similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
+        similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
+        similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
 
-#         st.dataframe(similar , hide_index=True)
+        st.dataframe(similar , hide_index=True)
 
-#         fig = px.histogram(
-#             similar, x="asking_price", nbins=30,
-#             title=f"Actual rental prices for comparable properties (n={len(similar)})",
-#             labels={"asking_price": "Monthly rent (£)"},
-#             color="furnishtype"
-#         )
-#         fig.add_vline(
-#             x=predicted_rent, line_dash="dash", line_color="red",
-#             annotation_text="Your prediction", annotation_position="top",
-#         )
-#         st.plotly_chart(fig, use_container_width=True)
+        fig = px.histogram(
+            similar, x="asking_price", nbins=30,
+            title=f"Actual rental prices for comparable properties (n={len(similar)})",
+            labels={"asking_price": "Monthly rent (£)"},
+            color="furnishtype"
+        )
+        fig.add_vline(
+            x=predicted_rent, line_dash="dash", line_color="red",
+            annotation_text="Your prediction", annotation_position="top",
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-#         st.divider()
+        st.divider()
 
-#         fig = px.histogram(
-#             similar, x="asking_price", nbins=30,
-#             title=f"Actual rental prices for comparable properties (n={len(similar)})",
-#             labels={"asking_price": "Monthly rent (£)"},
-#             color="btrflag"
-#         )
-#         fig.add_vline(
-#             x=predicted_rent, line_dash="dash", line_color="red",
-#             annotation_text="Your prediction", annotation_position="top",
-#         )
-#         st.plotly_chart(fig, use_container_width=True)
+        fig = px.histogram(
+            similar, x="asking_price", nbins=30,
+            title=f"Actual rental prices for comparable properties (n={len(similar)})",
+            labels={"asking_price": "Monthly rent (£)"},
+            color="btrflag"
+        )
+        fig.add_vline(
+            x=predicted_rent, line_dash="dash", line_color="red",
+            annotation_text="Your prediction", annotation_position="top",
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-#         st.divider()
+        st.divider()
 
-#         fig = px.histogram(
-#             similar, x="asking_price", nbins=30,
-#             title=f"Actual rental prices for comparable properties (n={len(similar)})",
-#             labels={"asking_price": "Monthly rent (£)"},
-#             color="newbuild"
-#         )
-#         fig.add_vline(
-#             x=predicted_rent, line_dash="dash", line_color="red",
-#             annotation_text="Your prediction", annotation_position="top",
-#         )
-#         st.plotly_chart(fig, use_container_width=True)
+        fig = px.histogram(
+            similar, x="asking_price", nbins=30,
+            title=f"Actual rental prices for comparable properties (n={len(similar)})",
+            labels={"asking_price": "Monthly rent (£)"},
+            color="newbuild"
+        )
+        fig.add_vline(
+            x=predicted_rent, line_dash="dash", line_color="red",
+            annotation_text="Your prediction", annotation_position="top",
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-#         st.divider()
+        st.divider()
 
 
-#     # # ---- SHAP explainability ----
-#     # st.subheader("Why this prediction?")
+    # # ---- SHAP explainability ----
+    # st.subheader("Why this prediction?")
 
-#     # contrib_df = explain_single_prediction(shap_explainer, input_frame, top_n=5)
-#     # explanation_text = generate_explanation_text(contrib_df, predicted_rent)
+    # contrib_df = explain_single_prediction(shap_explainer, input_frame, top_n=5)
+    # explanation_text = generate_explanation_text(contrib_df, predicted_rent)
 
-#     # col_plot, col_text = st.columns([1, 1])
+    # col_plot, col_text = st.columns([1, 1])
 
-#     # with col_plot:
-#     #     shap_fig = plot_local_contribution(smart_explainer, x_train_sample, input_frame)
-#     #     st.plotly_chart(shap_fig, use_container_width=True)
+    # with col_plot:
+    #     shap_fig = plot_local_contribution(smart_explainer, x_train_sample, input_frame)
+    #     st.plotly_chart(shap_fig, use_container_width=True)
 
-#     # with col_text:
-#     #     st.write(explanation_text)
-#     #     st.dataframe(
-#     #         contrib_df.rename(columns={
-#     #             "feature": "Feature", "value": "Selected value", "contribution": "Impact on rent (£)"
-#     #         }),
-#     #         hide_index=True,
-#     #     )
+    # with col_text:
+    #     st.write(explanation_text)
+    #     st.dataframe(
+    #         contrib_df.rename(columns={
+    #             "feature": "Feature", "value": "Selected value", "contribution": "Impact on rent (£)"
+    #         }),
+    #         hide_index=True,
+    #     )
 
-# else:
-#     st.info("Set your property features in the sidebar and click **Predict rent** to get started.")
+else:
+    st.info("Set your property features in the sidebar and click **Predict rent** to get started.")
