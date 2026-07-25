@@ -234,7 +234,7 @@ df = load_rental_data()
 model = load_model()  # LGBMRegressor (or a pipeline wrapping one)
 options = get_feature_options(df)
 
-st.dataframe(df.head(100), hide_index=True)
+# st.dataframe(df.head(100), hide_index=True)
 
 # print(df['btrflag'].unique())
 # print(df['newbuild'].unique())
