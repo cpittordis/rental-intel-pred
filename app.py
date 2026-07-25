@@ -376,6 +376,8 @@ def replace_na(x, value_str):
         return value_str
     elif x == 'nan':
         return value_str
+    elif str(x).lower().strip() == 'nan':
+        return value_str
     elif x == np.nan:
         return value_str
     elif x == None:
@@ -403,8 +405,8 @@ if predict_clicked:
 
     df['furnishtype'] = df['furnishtype'].apply(replace_na('Not Specified'))
     
-    df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
-    df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
+    df['btrflag'] = df['btrflag'].apply(replace_na('NO'))
+    df['newbuild'] = df['newbuild'].apply(replace_na('NO'))
 
     
     FEATURE_ORDER = [
