@@ -443,7 +443,7 @@ if predict_clicked:
 
 
         # # # Fall back to a looser match if too few comparable listings exist
-        if len(similar) < 5:
+        if len(similar) < 3:
             
             similar = df[
                     #(df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
