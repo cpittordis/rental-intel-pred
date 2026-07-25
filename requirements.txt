@@ -3,7 +3,6 @@ pandas
 numpy
 plotly
 joblib
-gc
 matplotlib
 lightgbm>=4.3.0
 scikit-learn>=1.4.0
