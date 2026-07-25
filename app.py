@@ -60,7 +60,7 @@ def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
     """Shared cleaning/filtering applied regardless of data source."""
 
     df = df.dropna(subset=["asking_price"])
-    df = df[df["asking_price"].between(200, 10000)]  # strip obvious outliers
+    df = df[df["asking_price"].between(200, 7000)]  # strip obvious outliers
     df = df.drop_duplicates()
 
     CATEGORICAL_FEATURES = [
