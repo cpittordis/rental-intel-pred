@@ -390,7 +390,10 @@ if predict_clicked:
     # df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     # df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
-    df['furnishtype'] = df['furnishtype'].apply(lambda x: x if x != 'nan' else 'Not Specified')
+    df['furnishtype'] = df['furnishtype'].apply(lambda x: x if x != 'nan' else 'Not Specified'
+                                                x if pd.isnull(x) == False else 'Not Specified'
+                                                )
+    
     df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
     df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
