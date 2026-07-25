@@ -6,3 +6,5 @@ joblib
 matplotlib
 lightgbm>=4.3.0
 scikit-learn>=1.4.0
+psutil
+os
