@@ -446,8 +446,9 @@ if predict_clicked:
         if len(similar) < 5:
             
             similar = df[
-                    (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
-                    & (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
+                    #(df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
+                    #& 
+                    (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
                     & (df["postcode_district"].astype(str) == rf'{user_selection["postcode_district"]}')
                     # & (df["wardcode"].astype(str) == rf'{user_selection["wardcode"]}')
                     # & (df["INNER_OUTER_LONDON"].astype(str) == rf'{user_selection["INNER_OUTER_LONDON"]}')
