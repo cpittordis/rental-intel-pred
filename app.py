@@ -221,7 +221,7 @@ def predict_with_interval(model, input_frame: pd.DataFrame):
 
 
 
-st.set_page_config(page_title="UK Rental Price Predictor", layout="wide")
+st.set_page_config(page_title="UK Rental Price Predictor")#, layout="wide")
 
 # Add logo to sidebar
 st.sidebar.image("images/Rental_Intel_logo.png")
