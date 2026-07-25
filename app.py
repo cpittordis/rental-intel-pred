@@ -563,7 +563,7 @@ if predict_clicked:
 
         st.divider()
 
-        if len(similar) < 3:
+        if len(similar) < 10:
 
             fig = px.histogram(
             similar, x="asking_price", nbins=30,
