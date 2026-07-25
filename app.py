@@ -371,7 +371,7 @@ predict_clicked = st.sidebar.button("Predict rent", type="primary")
 st.title("UK Rental Price Predictor")
 st.caption("Select property features on the left, then predict to see the estimated monthly rent.")
 
-def replace_na(x, value_str : str):
+def replace_na(x, value_str):
     if pd.isnull(x) == True:
         return value_str
     elif x == 'nan':
