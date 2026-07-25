@@ -563,19 +563,19 @@ if predict_clicked:
 
         st.divider()
 
-        if len(similar) < 10:
 
-            fig = px.histogram(
-            similar, x="asking_price", nbins=30,
-            title=f"Actual rental prices for comparable properties (n={len(similar)})",
-            labels={"asking_price": "Monthly rent (£)"},
-            color="PropertyType"
-            )
-            fig.add_vline(
-            x=predicted_rent, line_dash="dash", line_color="red",
-            annotation_text="Your prediction", annotation_position="top",
-            )
-            st.plotly_chart(fig, use_container_width=True)
+
+        fig = px.histogram(
+        similar, x="asking_price", nbins=30,
+        title=f"Actual rental prices for comparable properties (n={len(similar)})",
+        labels={"asking_price": "Monthly rent (£)"},
+        color="PropertyType"
+        )
+        fig.add_vline(
+        x=predicted_rent, line_dash="dash", line_color="red",
+        annotation_text="Your prediction", annotation_position="top",
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
         st.divider()
 
