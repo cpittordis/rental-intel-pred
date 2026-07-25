@@ -24,21 +24,21 @@ import psutil
 # from src.text_generator import generate_explanation_text
 
 
-def get_memory_usage():
-    # Obtains resident set size (RSS) memory in bytes
-    process = psutil.Process(os.getpid())
-    mem_bytes = process.memory_info().rss
-    # Convert bytes to Megabytes for readability
-    return mem_bytes / (1024 * 1024)
+# def get_memory_usage():
+#     # Obtains resident set size (RSS) memory in bytes
+#     process = psutil.Process(os.getpid())
+#     mem_bytes = process.memory_info().rss
+#     # Convert bytes to Megabytes for readability
+#     return mem_bytes / (1024 * 1024)
 
-# Display a live metrics card in the Streamlit Sidebar
-current_mem = get_memory_usage()
-st.sidebar.metric(
-    label="RAM Usage", 
-    value=f"{current_mem:.2f} MB", 
-    delta=f"{1024 - current_mem:.2f} MB remaining",
-    delta_color="normal" if current_mem < 800 else "inverse"
-)
+# # Display a live metrics card in the Streamlit Sidebar
+# current_mem = get_memory_usage()
+# st.sidebar.metric(
+#     label="RAM Usage", 
+#     value=f"{current_mem:.2f} MB", 
+#     delta=f"{1024 - current_mem:.2f} MB remaining",
+#     delta_color="normal" if current_mem < 800 else "inverse"
+# )
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
 def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFrame:
