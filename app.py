@@ -32,7 +32,9 @@ def load_rental_data(path: str = "data/uk_rental_ml_mvw.parquet") -> pd.DataFram
     widget interaction, but still picks up periodic data refreshes.
     """
     df = pd.read_parquet(path)
+    print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
+    print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
     return df
 
 
