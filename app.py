@@ -434,11 +434,11 @@ if predict_clicked:
         # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
         # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
 
-        similar['furnishtype'] = similar['furnishtype'].apply(lambda x: 'Not Specified' if (pd.isnull(x) == True 
-                                                                                            or x == 'nan' 
-                                                                                            or x == ''
-                                                                                            or x == None
-                                                                                            or x == np.nan) else x)
+        # similar['furnishtype'] = similar['furnishtype'].apply(lambda x: 'Not Specified' if (pd.isnull(x) == True 
+        #                                                                                     or x == 'nan' 
+        #                                                                                     or x == ''
+        #                                                                                     or x == None
+        #                                                                                     or x == np.nan) else x)
 
         similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
         similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
