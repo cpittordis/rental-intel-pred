@@ -49,7 +49,7 @@ def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode.pa
     widget interaction, but still picks up periodic data refreshes.
     """
     df = pd.read_parquet(path)
-    df = df.sample(200000)
+    df = df.sample(300000)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
     print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
@@ -372,6 +372,7 @@ st.title("UK Rental Price Predictor")
 st.caption("Select property features on the left, then predict to see the estimated monthly rent.")
 
 
+
 # ---------------------------------------------------------- prediction ----
 if predict_clicked:
     # df doubles as the category_reference so the live input row uses the
@@ -384,6 +385,10 @@ if predict_clicked:
     #             ]
     
     # st.dataframe(df_filter)
+
+    df['furnishtype'] = df['furnishtype'].astype(str).replace('nan','Not Specified')
+    df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
+    df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
 
     
     FEATURE_ORDER = [
@@ -421,6 +426,7 @@ if predict_clicked:
 
     # ---- Distribution of actual prices for similar properties ----
     with col_context:
+        
         similar = df[
             (df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
             & (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
@@ -433,6 +439,7 @@ if predict_clicked:
             & (df["newbuild"].astype(str) == rf'{user_selection["newbuild"]}')
             ]
 
+
         # similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
         # # similar['btrflag'] = similar['btrflag'].astype(str)
         # similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
@@ -443,7 +450,7 @@ if predict_clicked:
 
 
         # # # Fall back to a looser match if too few comparable listings exist
-        if len(similar) < 3:
+        if len(similar) < 10:
             
             similar = df[
                     #(df["PropertyType"].astype(str) == rf'{user_selection["PropertyType"]}') # Corrected key
@@ -475,8 +482,10 @@ if predict_clicked:
         # Force Python to clear the unreferenced memory immediately
         gc.collect()
 
-        similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
-        similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
+        
+        # similar["furnishtype"] = similar["furnishtype"].apply(lambda x: x if pd.isnull(x) == False else 'Not Specified')
+        # similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
+        # similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
 
         st.dataframe(similar , hide_index=True)
 
