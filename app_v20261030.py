@@ -41,7 +41,8 @@ from pathlib import Path
 # )
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
-def load_rental_data(path: str | None = None) -> pd.DataFrame:
+# def load_rental_data(path: str | None = None) -> pd.DataFrame:
+def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
     and for the actual-price distribution plot shown to the user.
@@ -49,11 +50,11 @@ def load_rental_data(path: str | None = None) -> pd.DataFrame:
     Cached with a 6h TTL so the app doesn't re-read the file on every
     widget interaction, but still picks up periodic data refreshes.
     """
-    data_path = (
-        Path(path)
-        if path is not None
-        else Path(__file__).resolve().parents[1] / "data" / "inference_uk_rental_avm_v20261031.parquet"
-    )
+    # data_path = (
+    #     Path(path)
+    #     if path is not None
+    #     else Path(__file__).resolve().parents[1] / "data" / "inference_uk_rental_avm_v20261031.parquet"
+    # )
     df = pd.read_parquet(data_path)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
@@ -144,16 +145,17 @@ def get_feature_options(df: pd.DataFrame) -> dict:
 # code_dir = Path(__file__).parent.resolve()
 
 @st.cache_resource(show_spinner="Loading rental prediction model...")
-def load_model(path: str | None = None):
+# def load_model(path: str | None = None):
+def load_model(model_path: str = "models/lightgbm_optuna_uk_rental_avm_v20261031"):
     """
     Cached as a resource since the fitted LGBMRegressor should be loaded
     once per session/process, not re-deserialized on every prediction.
     """
-    model_path = (
-        Path(path)
-        if path is not None
-        else Path(__file__).resolve().parent / "models" / "lightgbm_optuna_uk_rental_avm_v20261031"
-    )
+    # model_path = (
+    #     Path(path)
+    #     if path is not None
+    #     else Path(__file__).resolve().parent / "models" / "lightgbm_optuna_uk_rental_avm_v20261031"
+    # )
     return joblib.load(model_path)
 
 
