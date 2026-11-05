@@ -16,7 +16,7 @@ import numpy as np
 import joblib
 import pandas as pd
 import gc
-#from pathlib import Path
+from pathlib import Path
 
 # from data_loader import load_rental_data, get_feature_options
 # from model import load_model, build_input_frame, predict_rent , predict_with_interval
@@ -41,8 +41,8 @@ import gc
 # )
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
-# def load_rental_data(path: str | None = None) -> pd.DataFrame:
-def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode_20261030.parquet") -> pd.DataFrame:
+#def load_rental_data(path: str | None = None) -> pd.DataFrame:
+def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
     and for the actual-price distribution plot shown to the user.
@@ -55,7 +55,7 @@ def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode_20
     #     if path is not None
     #     else Path(__file__).resolve().parents[1] / "data" / "inference_uk_rental_avm_v20261031.parquet"
     # )
-    df = pd.read_parquet(path)
+    df = pd.read_parquet(data_path)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
     print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
@@ -410,11 +410,20 @@ derived_feature_fallbacks = {
 
 
 def get_context_value(dataframe: pd.DataFrame, column: str) -> float:
+    missing_columns = set()
     for source_df in (dataframe, area_df, district_df, df):
         for candidate_column in (column, *derived_feature_fallbacks.get(column, ())):
+            if candidate_column not in source_df.columns:
+                missing_columns.add(candidate_column)
+                continue
             values = pd.to_numeric(source_df[candidate_column], errors="coerce").dropna()
             if not values.empty:
                 return float(values.median())
+    if column in missing_columns:
+        raise ValueError(
+            f"Cannot retrieve model feature '{column}'; required data columns are unavailable: "
+            f"{', '.join(sorted(missing_columns))}."
+        )
     raise ValueError(f"No valid value for model feature '{column}' in the selected area.")
 
 
