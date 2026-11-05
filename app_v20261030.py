@@ -16,7 +16,7 @@ import numpy as np
 import joblib
 import pandas as pd
 import gc
-from pathlib import Path
+#from pathlib import Path
 
 # from data_loader import load_rental_data, get_feature_options
 # from model import load_model, build_input_frame, predict_rent , predict_with_interval
@@ -42,7 +42,7 @@ from pathlib import Path
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
 # def load_rental_data(path: str | None = None) -> pd.DataFrame:
-def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031.parquet") -> pd.DataFrame:
+def load_rental_data(path: str = "data/uk_rental_ml_mvw_with_listing_postcode_20261030.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
     and for the actual-price distribution plot shown to the user.
@@ -55,7 +55,7 @@ def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031.pa
     #     if path is not None
     #     else Path(__file__).resolve().parents[1] / "data" / "inference_uk_rental_avm_v20261031.parquet"
     # )
-    df = pd.read_parquet(data_path)
+    df = pd.read_parquet(path)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
     print(f"Cleaned rental data has {len(df)} rows and {len(df.columns)} columns.")
@@ -146,7 +146,7 @@ def get_feature_options(df: pd.DataFrame) -> dict:
 
 @st.cache_resource(show_spinner="Loading rental prediction model...")
 # def load_model(path: str | None = None):
-def load_model(model_path: str = "models/lightgbm_optuna_uk_rental_avm_v20261031"):
+def load_model(path: str = "models/lightgbm_optuna_uk_rental_avm_v20261031"):
     """
     Cached as a resource since the fitted LGBMRegressor should be loaded
     once per session/process, not re-deserialized on every prediction.
@@ -156,7 +156,7 @@ def load_model(model_path: str = "models/lightgbm_optuna_uk_rental_avm_v20261031
     #     if path is not None
     #     else Path(__file__).resolve().parent / "models" / "lightgbm_optuna_uk_rental_avm_v20261031"
     # )
-    return joblib.load(model_path)
+    return joblib.load(path)
 
 
 # @st.cache_resource(show_spinner=False)
