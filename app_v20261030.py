@@ -42,7 +42,7 @@ from pathlib import Path
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
 #def load_rental_data(path: str | None = None) -> pd.DataFrame:
-def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031.parquet") -> pd.DataFrame:
+def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031_pred_asking_price_updated.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
     and for the actual-price distribution plot shown to the user.
