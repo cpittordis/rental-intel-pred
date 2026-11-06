@@ -18,12 +18,8 @@ import pandas as pd
 import gc
 from pathlib import Path
 
-# from data_loader import load_rental_data, get_feature_options
-# from model import load_model, build_input_frame, predict_rent , predict_with_interval
-# from src.explainer import get_base_value , build_shap_explainer, explain_single_prediction, plot_local_contribution
-# from src.text_generator import generate_explanation_text
 
-
+"""This is used to check Memory usage of the streamlit app when running on streamlit cloud community edition."""
 # def get_memory_usage():
 #     # Obtains resident set size (RSS) memory in bytes
 #     process = psutil.Process(os.getpid())
@@ -41,7 +37,6 @@ from pathlib import Path
 # )
 
 @st.cache_data(ttl="6h", show_spinner="Loading latest rental listings...")
-#def load_rental_data(path: str | None = None) -> pd.DataFrame:
 def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031_pred_asking_price_updated.parquet") -> pd.DataFrame:
     """
     Load the rental listings dataset used both for training-time features
@@ -50,11 +45,6 @@ def load_rental_data(data_path: str = "data/inference_uk_rental_avm_v20261031_pr
     Cached with a 6h TTL so the app doesn't re-read the file on every
     widget interaction, but still picks up periodic data refreshes.
     """
-    # data_path = (
-    #     Path(path)
-    #     if path is not None
-    #     else Path(__file__).resolve().parents[1] / "data" / "inference_uk_rental_avm_v20261031.parquet"
-    # )
     df = pd.read_parquet(data_path)
     print(f"Loaded rental data with {len(df)} rows and {len(df.columns)} columns.")
     df = _clean_rental_data(df)
@@ -73,19 +63,12 @@ def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
 
     CATEGORICAL_FEATURES = [
     'postcode_district','INNER_OUTER_LONDON','REGION_LONDON','wardcode','PropertyType',
-    #'Bedrooms',
     'furnishtype','btrflag','newbuild'
 ]
 
     # Ensure 'Bedrooms' is an integer type
     if "Bedrooms" in df.columns:
         df["Bedrooms"] = pd.to_numeric(df["Bedrooms"], errors='coerce').fillna(0).astype(int)
-
-    # # Ensure 'btrflag' and 'newbuild' are boolean types
-    # for col in ['btrflag', 'newbuild']:
-    #     if col in df.columns:
-    #         # Convert to boolean, coercing errors to NaN, then fill NaN with False (or appropriate default)
-    #         df[col] = df[col].astype(bool) # Convert existing types to bool
 
 
     # LightGBM handles categoricals natively when given 'category' dtype —
@@ -96,32 +79,7 @@ def _clean_rental_data(df: pd.DataFrame) -> pd.DataFrame:
         if col in df.columns:
             df[col] = df[col].astype("category")
 
-    # # final condensing 
-    # df = condense_dtypes(df)
-
     return df
-
-#     # 2. Downcast data types to use less memory
-# def condense_dtypes(df):
-#     for col in df.columns:
-#         col_type = df[col].dtype
-
-#         # Condense Floats (e.g., float64 -> float32)
-#         if np.issubdtype(col_type, np.floating):
-#             df[col] = pd.to_numeric(df[col], downcast="float")
-
-#         # Condense Integers (e.g., int64 -> int8 or int16)
-#         elif np.issubdtype(col_type, np.integer):
-#             df[col] = pd.to_numeric(df[col], downcast="integer")
-
-#         # # Condense Text objects to Categories if high repetition
-#         # elif col_type == "object": #or col_type == "string":
-#         #     if df[col].nunique() / len(df[col]) < 0.5:
-#         #         df[col] = df[col].astype("category")
-#     return df
-
-    
-
 
 def get_feature_options(df: pd.DataFrame) -> dict:
     """
@@ -145,41 +103,12 @@ def get_feature_options(df: pd.DataFrame) -> dict:
 # code_dir = Path(__file__).parent.resolve()
 
 @st.cache_resource(show_spinner="Loading rental prediction model...")
-# def load_model(path: str | None = None):
 def load_model(path: str = "models/lightgbm_optuna_uk_rental_avm_v20261031"):
     """
     Cached as a resource since the fitted LGBMRegressor should be loaded
     once per session/process, not re-deserialized on every prediction.
     """
-    # model_path = (
-    #     Path(path)
-    #     if path is not None
-    #     else Path(__file__).resolve().parent / "models" / "lightgbm_optuna_uk_rental_avm_v20261031"
-    # )
     return joblib.load(path)
-
-
-# @st.cache_resource(show_spinner=False)
-# def load_quantile_models(
-#     lower_path: str = "models/rental_model_q10.joblib",
-#     upper_path: str = "models/rental_model_q90.joblib",
-# ):
-#     """
-#     LightGBM doesn't expose a tree-spread interval the way RandomForest
-#     does — a quantile interval needs separate LGBMRegressor instances
-#     trained with objective='quantile' and alpha=0.1 / alpha=0.9
-#     respectively. Load them once and cache alongside the point model.
-
-#     Returns (lower_model, upper_model), or (None, None) if the files
-#     aren't present yet (interval reporting degrades gracefully).
-#     """
-#     try:
-#         lower_model = joblib.load(lower_path)
-#         upper_model = joblib.load(upper_path)
-#         return lower_model, upper_model
-#     except FileNotFoundError:
-#         return None, None
-
 
 def build_input_frame(
     user_selection: dict,
@@ -204,7 +133,6 @@ def build_input_frame(
     "REGION_LONDON",
     "wardcode",
     "PropertyType",
-    #"Bedrooms",
     "furnishtype",
     "btrflag",
     ]
@@ -237,15 +165,11 @@ def predict_with_interval(model, input_frame: pd.DataFrame):
     """
     point = predict_rent(model, input_frame)
 
-    # lower_model, upper_model = load_quantile_models()
-    # if lower_model is not None and upper_model is not None:
-    #     lower = predict_rent(lower_model, input_frame)
-    #     upper = predict_rent(upper_model, input_frame)
-    #     return point, lower, upper
-    return point#, None, None  # Return None for lower and upper if quantile models aren't available
+    return point 
 
 
 
+# --------------------------------------------------------------- Streamlit ---- 
 st.set_page_config(page_title="UK Rental Price Predictor", layout="wide")
 
 # Add logo to sidebar
@@ -281,44 +205,12 @@ FEATURE_ORDER = [
 ]
 
 
-# FEATURE_LABELS = {
-#     "postcode_district": "Postcode district",
-#     "INNER_OUTER_LONDON": "Inner/Outer London",
-#     "REGION_LONDON": "London region",
-#     "wardcode": "Ward code",
-#     "PropertyType": "Property type",
-#     "Bedrooms": "Bedrooms",
-#     "furnishtype": "Furnished Type",
-#     "btrflag": "BTR (Build to Rent) or Not",
-#     "newbuild": "New Build",
-
-#     "num_listings_district": "Number of listings in postcode district",
-#     "num_listings_ward": "Number of listings in ward",
-#     "num_occupants_district": "Number of occupants in postcode district",
-#     "num_occupants_ward": "Number of occupants in ward",
-#     "listings_per_occupant_district_percentage": "Listings per occupant in postcode district (%)",
-#     "listings_per_occupant_ward_percentage": "Listings per occupant in ward (%)"
-# }
-
-
 # ---------------------------------------------------------------- load ----
 df = load_rental_data()
 model = load_model()  # LGBMRegressor (or a pipeline wrapping one)
 options = get_feature_options(df)
 if list(model.feature_name_) != FEATURE_ORDER:
     raise ValueError("The loaded model's feature schema does not match the prediction inputs.")
-
-# st.dataframe(df.head(100), hide_index=True)
-
-# print(df['btrflag'].unique())
-# print(df['newbuild'].unique())
-
-# Explainers built against a sample of the feature matrix (fast, still representative)
-# x_train_sample = df[FEATURE_ORDER].sample(min(200, len(df)), random_state=42)
-# shap_explainer = build_shap_explainer(model)
-# base_value = get_base_value(shap_explainer)
-# # smart_explainer = build_smart_explainer(model, x_train_sample, feature_labels=FEATURE_LABELS)
-
 
 # ------------------------------------------------------------- sidebar ----
 st.sidebar.header("Property features")
@@ -504,46 +396,15 @@ def replace_na(x, value_str):
 
 # ---------------------------------------------------------- prediction ----
 if predict_clicked:
-    # df doubles as the category_reference so the live input row uses the
-    # exact same category codes LightGBM was trained on.
-
-    # df_filter = df[(df["Bedrooms"].astype(int) == 1)
-    #             & (df["postcode_district"].astype(str) == r'B18')
-    #             & (df['furnishtype'].astype(str) == r'furnished')
-    #             &(df['btrflag'].astype(str) == 'nan')
-    #             ]
-    
-    # st.dataframe(df_filter)
-
-    # df['furnishtype'] = df['furnishtype'].astype(str).replace('nan','Not Specified')
-    # df['btrflag'] = df['btrflag'].astype(str).replace('nan','NO')
-    # df['newbuild'] = df['newbuild'].astype(str).replace('nan','NO')
-
-    # df['furnishtype'] = df['furnishtype'].apply(lambda x: replace_na(x, 'Not Specified'))
-    # df['btrflag'] = df['btrflag'].apply(lambda x: replace_na(x, 'NO'))
-    # df['newbuild'] = df['newbuild'].apply(lambda x: replace_na(x, 'NO'))
-
 
     input_frame = build_input_frame(user_selection, FEATURE_ORDER, category_reference=df)
     # predicted_rent, lower, upper = predict_with_interval(model, input_frame)
     predicted_rent = predict_rent(model, input_frame)
 
     st.metric("Predicted monthly rent", f"£{predicted_rent:,.0f}")
-    # if lower is not None and upper is not None:
-    #     st.caption(f"Likely range: £{lower:,.0f} – £{upper:,.0f}")
 
     # ---- Distribution of actual prices for similar properties ----
     similar = context_df.copy()
-
-
-    # similar['btrflag'] = similar['btrflag'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
-    # # similar['btrflag'] = similar['btrflag'].astype(str)
-    # similar['newbuild'] = similar['newbuild'].apply(lambda x: 'YES' if pd.isnull(x) == False else 'NO')
-
-    # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
-    # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
-
-
 
     # # # Fall back to a looser match if too few comparable listings exist
     if len(similar) < 10:
@@ -553,27 +414,10 @@ if predict_clicked:
                 #&
                 (df["Bedrooms"].astype(int) == int(user_selection["Bedrooms"]))     # Corrected key
                 & (df["postcode_district"].astype(str) == rf'{user_selection["postcode_district"]}')
-                # & (df["wardcode"].astype(str) == rf'{user_selection["wardcode"]}')
-                # & (df["INNER_OUTER_LONDON"].astype(str) == rf'{user_selection["INNER_OUTER_LONDON"]}')
-                # & (df["REGION_LONDON"].astype(str) == rf'{user_selection["REGION_LONDON"]}')
-                # & (df["furnishtype"].astype(str) == rf'{user_selection["furnishtype"]}')
-                # & (df["btrflag"].astype(str) == rf'{user_selection["btrflag"]}')
                 ]
 
 
-
-    # similar['btrflag'] = similar['btrflag'].astype(str)
-    # similar['newbuild'] = similar['newbuild'].astype(str)
-
-    # similar['btrflag'] = similar['btrflag'].replace('nan', 'NO')  # Replace 'nan' with 'NO' for display purposes
-    # similar['newbuild'] = similar['newbuild'].replace('nan', 'NO')
-
-    # similar['furnishtype'] = similar['furnishtype'].apply(lambda x: 'Not Specified' if (pd.isnull(x) == True
-    #                                                                                     or x == 'nan'
-    #                                                                                     or x == ''
-    #                                                                                     or x == None
-    #                                                                                     or x == np.nan) else x)
-
+    # flush memory by deleting the original dataframe
     del df
 
     # Force Python to clear the unreferenced memory immediately
@@ -641,27 +485,6 @@ if predict_clicked:
         st.plotly_chart(fig, use_container_width=True)
 
         st.divider()
-
-    # # ---- SHAP explainability ----
-    # st.subheader("Why this prediction?")
-
-    # contrib_df = explain_single_prediction(shap_explainer, input_frame, top_n=5)
-    # explanation_text = generate_explanation_text(contrib_df, predicted_rent)
-
-    # col_plot, col_text = st.columns([1, 1])
-
-    # with col_plot:
-    #     shap_fig = plot_local_contribution(smart_explainer, x_train_sample, input_frame)
-    #     st.plotly_chart(shap_fig, use_container_width=True)
-
-    # with col_text:
-    #     st.write(explanation_text)
-    #     st.dataframe(
-    #         contrib_df.rename(columns={
-    #             "feature": "Feature", "value": "Selected value", "contribution": "Impact on rent (£)"
-    #         }),
-    #         hide_index=True,
-    #     )
 
 else:
     st.info("Set your property features in the sidebar and click **Predict rent** to get started.")
